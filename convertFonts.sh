@@ -16,7 +16,7 @@
 # Uncomment the line below with the right directories.  Remember the 
 # $PATH at the beginning of the string, or the script will forget what
 # was originally in the PATH.
-PATH="$PATH:/Users/zhawry/bin/"
+PATH="$PATH:/home/work/Desktop/font-compression-reference/woff2/"
 
 
 #########################################################################
@@ -32,6 +32,7 @@ DO_AUTOHINT=`echo "$ARGS" | grep '\--autohint'`
 OUTPUT=`echo "$ARGS" | grep '\--output'`
 USE_FONT_PREFIX=`echo "$ARGS" | grep '\--use-font-prefix'`
 USE_TTF2EOT=`echo "$ARGS" | grep '\--use-ttf2eot'`
+USE_MKEOT=`echo "$ARGS" | grep '\--use-mkeot'`
 
 
 CLEANUP=`echo "$ARGS" | grep '\--clean'` 
@@ -203,6 +204,7 @@ This script uses the following programs to do the heavy listing.
   - Fontforge:      http://fontforge.sourceforge.net/
   - EOTFAST:        http://eotfast.com/
   - ttf2eot:        http://code.google.com/p/ttf2eot/)
+  - eot-utils:      http://dev.w3.org/cvsweb/eot-utils/
   - sfnt2woff:      http://people.mozilla.com/~jkew/woff/
   - ttfautohint:    http://www.freetype.org/ttfautohint/
   - woff2_compress: http://code.google.com/p/font-compression-reference/w/list
@@ -329,6 +331,16 @@ toEOT () {
 			sed "s/\.[tT][tT][fF]$//" |
 			sed "s/\.[oO][tT][fF]$//"`
 		ttf2eot $1 > $FILE_STUB.eot
+	fi
+	
+
+	if [ "$FOUND" != "0" -o "$SUCCESS" != "0" -o "$USE_MKEOT" != "" ]
+	then
+		echo "(Using mkeot)"
+		FILE_STUB=`echo $NEW_FILE |
+			sed "s/\.[tT][tT][fF]$//" |
+			sed "s/\.[oO][tT][fF]$//"`
+		mkeot $1 http:// https:// > $FILE_STUB.eot
 	fi
 }
 
@@ -515,7 +527,7 @@ fi
 
 #.. checks for binaries that convert to EOT format.
 HAS_EOT_SUPPORT=1
-for i in EOTFAST-1 ttf2eot 
+for i in EOTFAST-1 ttf2eot mkeot
 do
 	which "$i" > /dev/null 2> /dev/null
 	HAS_EOT_SUPPORT=`expr $? \* $HAS_EOT_SUPPORT`
